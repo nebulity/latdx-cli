@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report a bug with the LATdx CLI
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: LATdx version
+      description: Output of `latdx -V`
+      placeholder: "0.15.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - macOS Apple Silicon (darwin-arm64)
+        - macOS Intel (darwin-x64)
+        - Linux x64
+        - Linux ARM64
+        - Windows x64
+    validations:
+      required: true
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Installation method
+      options:
+        - install.sh (curl | bash)
+        - Manual download
+        - VS Code extension
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Run `latdx test run -n MyTest -o my-org`
+        2. See error...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste any relevant log output.
+      render: shell
