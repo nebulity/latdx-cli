@@ -7,19 +7,19 @@ LATdx delivers near real-time feedback so you can stay in your flow and ship con
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Nebulity/latdx-releases/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Nebulity/latdx-cli/main/install.sh | bash
 ```
 
 Install a specific version:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Nebulity/latdx-releases/main/install.sh | bash -s -- 0.15.2
+curl -fsSL https://raw.githubusercontent.com/Nebulity/latdx-cli/main/install.sh | bash -s -- 0.15.2
 ```
 
 Custom install directory:
 
 ```bash
-LATDX_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Nebulity/latdx-releases/main/install.sh | bash
+LATDX_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Nebulity/latdx-cli/main/install.sh | bash
 ```
 
 ### Platforms
@@ -34,7 +34,7 @@ LATDX_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Ne
 
 ### Manual download
 
-Download binaries directly from the [Releases](https://github.com/Nebulity/latdx-releases/releases) page.
+Download binaries directly from the [Releases](https://github.com/Nebulity/latdx-cli/releases) page.
 
 ### Verify downloads
 
@@ -67,7 +67,7 @@ Visit [latdx.com](https://latdx.com) for full documentation.
 
 ## Issues
 
-Found a bug or have a feature request? [Open an issue](https://github.com/Nebulity/latdx-releases/issues/new/choose).
+Found a bug or have a feature request? [Open an issue](https://github.com/Nebulity/latdx-cli/issues/new/choose).
 
 ## License
 

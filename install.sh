@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="Nebulity/latdx-releases"
+REPO="Nebulity/latdx-cli"
 BINARY_NAME="latdx"
 INSTALL_DIR="${LATDX_INSTALL_DIR:-$HOME/.local/bin}"
 
