@@ -36,6 +36,18 @@ download() {
     fi
 }
 
+# A non-fatal probe used to detect whether a release asset exists. Returns 0
+# on 200 OK, non-zero otherwise. The release-asset URL pattern returns 302
+# -> S3 when the file is present, so HEAD against the GitHub URL is enough.
+asset_exists() {
+    local url="$1"
+    if [ "$DOWNLOADER" = "curl" ]; then
+        curl -sfI -o /dev/null "$url"
+    else
+        wget -q --spider "$url"
+    fi
+}
+
 # Detect OS
 case "$(uname -s)" in
     Darwin) os="darwin" ;;
@@ -56,13 +68,6 @@ if [ "$os" = "darwin" ] && [ "$arch" = "x64" ]; then
     if [ "$(sysctl -n sysctl.proc_translated 2>/dev/null)" = "1" ]; then
         arch="arm64"
     fi
-fi
-
-# Build asset name
-if [ "$os" = "win" ]; then
-    asset_name="${BINARY_NAME}-${os}-${arch}.exe"
-else
-    asset_name="${BINARY_NAME}-${os}-${arch}"
 fi
 
 echo "Detected platform: ${os}-${arch}"
@@ -87,14 +92,48 @@ echo "Installing ${BINARY_NAME} v${VERSION}..."
 TMPDIR_INSTALL="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR_INSTALL"' EXIT
 
-# Download binary and checksums
+# Resolve asset name. Newer releases (>= the one that switched packaging)
+# ship a bundle that contains the binary plus a sibling jars/ directory:
+#
+#     latdx-darwin-arm64.tar.gz   ->  latdx + jars/apex-ls.jar + jars/apex-ls-bridge.jar
+#     latdx-win-x64.zip           ->  latdx.exe + jars/...
+#
+# Older releases shipped a bare binary (`latdx-darwin-arm64`, `latdx-win-x64.exe`)
+# with no JARs. Probe the bundle first, fall back to the bare binary so this
+# script keeps working against older release tags.
+if [ "$os" = "win" ]; then
+    bundle_asset="${BINARY_NAME}-${os}-${arch}.zip"
+    legacy_asset="${BINARY_NAME}-${os}-${arch}.exe"
+else
+    bundle_asset="${BINARY_NAME}-${os}-${arch}.tar.gz"
+    legacy_asset="${BINARY_NAME}-${os}-${arch}"
+fi
+
+if asset_exists "${BASE_URL}/${bundle_asset}"; then
+    asset_name="$bundle_asset"
+    asset_kind="bundle"
+elif asset_exists "${BASE_URL}/${legacy_asset}"; then
+    asset_name="$legacy_asset"
+    asset_kind="legacy"
+    echo "Note: release ${RELEASE_TAG} ships a legacy bare-binary asset; Phase 4 features will require LATDX_APEX_LS_JAR / LATDX_APEX_LS_BRIDGE_JAR env vars." >&2
+else
+    echo "Error: neither ${bundle_asset} nor ${legacy_asset} found in release ${RELEASE_TAG}" >&2
+    exit 1
+fi
+
+# Download asset and checksums
 echo "Downloading ${asset_name}..."
 download "${BASE_URL}/${asset_name}" "${TMPDIR_INSTALL}/${asset_name}"
 download "${BASE_URL}/SHA256SUMS" "${TMPDIR_INSTALL}/SHA256SUMS"
 
 # Verify checksum
 echo "Verifying checksum..."
-expected=$(grep "${asset_name}" "${TMPDIR_INSTALL}/SHA256SUMS" | awk '{print $1}')
+expected=$(grep " ${asset_name}\$" "${TMPDIR_INSTALL}/SHA256SUMS" | awk '{print $1}')
+if [ -z "$expected" ]; then
+    # Older SHA256SUMS used the bare-binary name without an extension; retry
+    # with a looser match to stay compatible.
+    expected=$(grep "${asset_name}" "${TMPDIR_INSTALL}/SHA256SUMS" | awk '{print $1}' | head -1)
+fi
 if [ -z "$expected" ]; then
     echo "Error: ${asset_name} not found in SHA256SUMS" >&2
     exit 1
@@ -127,13 +166,42 @@ if command -v minisign >/dev/null 2>&1; then
     fi
 fi
 
-# Install
+# Install. For bundle assets we extract the archive so the binary lands next
+# to its sibling jars/ directory; the CLI auto-discovers JARs via
+# <execDir>/jars/. For legacy assets we copy the binary directly.
 mkdir -p "$INSTALL_DIR"
-cp "${TMPDIR_INSTALL}/${asset_name}" "${INSTALL_DIR}/${BINARY_NAME}"
-chmod +x "${INSTALL_DIR}/${BINARY_NAME}"
+if [ "$asset_kind" = "bundle" ]; then
+    # Remove any prior jars/ from a previous install so stale JARs don't
+    # mix with the new bundle's contents.
+    rm -rf "${INSTALL_DIR}/jars"
+    if [ "$os" = "win" ]; then
+        if command -v unzip >/dev/null 2>&1; then
+            unzip -oq "${TMPDIR_INSTALL}/${asset_name}" -d "$INSTALL_DIR"
+        else
+            echo "Error: unzip is required to extract ${asset_name}" >&2
+            exit 1
+        fi
+        installed_bin="${INSTALL_DIR}/${BINARY_NAME}.exe"
+    else
+        tar -xzf "${TMPDIR_INSTALL}/${asset_name}" -C "$INSTALL_DIR"
+        installed_bin="${INSTALL_DIR}/${BINARY_NAME}"
+    fi
+    chmod +x "$installed_bin"
+else
+    if [ "$os" = "win" ]; then
+        installed_bin="${INSTALL_DIR}/${BINARY_NAME}.exe"
+    else
+        installed_bin="${INSTALL_DIR}/${BINARY_NAME}"
+    fi
+    cp "${TMPDIR_INSTALL}/${asset_name}" "$installed_bin"
+    chmod +x "$installed_bin"
+fi
 
 echo ""
-echo "Installed ${BINARY_NAME} v${VERSION} to ${INSTALL_DIR}/${BINARY_NAME}"
+echo "Installed ${BINARY_NAME} v${VERSION} to ${installed_bin}"
+if [ "$asset_kind" = "bundle" ]; then
+    echo "Phase 4 JARs installed at ${INSTALL_DIR}/jars/"
+fi
 
 # Check if INSTALL_DIR is in PATH
 if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
