@@ -1,22 +1,21 @@
-LATdx Commercial License
+MIT License
 
-Copyright (c) 2025 Nebulity, LLC
+Copyright (c) 2024-2026 Nebulity, LLC
 
-This software and any associated documentation (the "Software") are proprietary to Nebulity, LLC and are licensed, not sold.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-The Software may only be used by individuals or entities who have entered into a valid license agreement or subscription contract with Nebulity, LLC and are in compliance with its terms. Use of the Software without a valid license is strictly prohibited.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Subject to the terms of your subscription, you are granted a non-exclusive, non-transferable, revocable license to install and use the Software solely for your internal use, and only for the duration of your active subscription.
-
-You may not:
-- Copy, modify, or create derivative works based on the Software.
-- Decompile, reverse engineer, or attempt to derive source code from the Software.
-- Rent, lease, lend, sell, sublicense, or distribute the Software to third parties.
-
-The Software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
-
-Nebulity, LLC shall not be liable for any damages resulting from the use or inability to use the Software, even if advised of the possibility of such damages.
-
-Your use of the Software constitutes acceptance of these terms. The full license agreement can be found at: [https://latdx.com/eula]
-
-All rights not expressly granted herein are reserved by Nebulity, LLC.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
