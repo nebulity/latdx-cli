@@ -1,6 +1,6 @@
 # LATdx CLI
 
-**Speed up your Salesforce Apex tests, 2x to 20x faster.**
+**Speed up your Salesforce Apex tests.**
 
 LATdx delivers near real-time feedback so you can stay in your flow and ship confidently, without waiting on slow test cycles.
 
